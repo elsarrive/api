@@ -1,9 +1,14 @@
-from fastapi import FastAPI, Query
+from fastapi import Body, FastAPI, Query
+from fastapi_mail import ConnectionConfig, MessageSchema, FastMail
 import uvicorn
+from dotenv import load_dotenv
+import os
 
 from dto.hello_request_dto import HelloRequestDto
 from dto.hello_response_dto import HelloResponseDto
+from dto.mail_request_dto import MailRequestDto
 
+load_dotenv()
 
 # créer une instance de FastAPI
 app = FastAPI()
@@ -22,6 +27,28 @@ def hello(
         square=dto.nb**2
     )
     # return { 'result': f'Hello {dto.name * dto.nb}', 'square': dto.nb**2 }
+
+@app.post('/mail', status_code=201)
+async def mail(dto: MailRequestDto = Body()) -> None:
+    config = ConnectionConfig(
+        MAIL_SERVER=os.getenv('SMTP_HOST'),
+        MAIL_PORT=int(os.getenv('SMTP_PORT')),
+        MAIL_USERNAME=os.getenv('SMTP_USER'),
+        MAIL_PASSWORD=os.getenv('SMTP_PASS'),
+        MAIL_SSL_TLS=False,
+        MAIL_STARTTLS=False,
+        MAIL_FROM='admin@admin.be'
+    )
+    message = MessageSchema(
+        subject=dto.subject,
+        from_email='admin@admin.be',
+        reply_to=[dto.email],
+        recipients=['lykhun@gmail.com'],
+        body=f'L\'utilisateur {dto.name} ({dto.email}): Ce mail contenait: {dto.content}',
+        subtype='html'
+    )
+    mailer = FastMail(config)
+    await mailer.send_message(message)
 
 if __name__ == '__main__':
     # exposer FastAPI sur le port 8000
