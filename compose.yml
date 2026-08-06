@@ -1,0 +1,12 @@
+services:
+  smtp:
+    container_name: stmp4dev
+    image: rnwood/smtp4dev:latest
+    ports:
+      - 25:25
+      - 5000:80
+    volumes:
+      - smtp4dev-data:/smtp4dev
+
+volumes:
+  smtp4dev-data:
