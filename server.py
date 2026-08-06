@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from fastapi import Body, FastAPI, Query
 from fastapi_mail import ConnectionConfig, MessageSchema, FastMail
 import uvicorn
@@ -37,18 +39,20 @@ async def mail(dto: MailRequestDto = Body()) -> None:
         MAIL_PASSWORD=os.getenv('SMTP_PASS'),
         MAIL_SSL_TLS=False,
         MAIL_STARTTLS=False,
-        MAIL_FROM='admin@admin.be'
+        MAIL_FROM='admin@admin.be',
+        TEMPLATE_FOLDER = Path(__file__).parent / 'templates'
     )
     message = MessageSchema(
         subject=dto.subject,
         from_email='admin@admin.be',
         reply_to=[dto.email],
         recipients=['lykhun@gmail.com'],
-        body=f'L\'utilisateur {dto.name} ({dto.email}): Ce mail contenait: {dto.content}',
+        template_body=dto.__dict__,
+        # body=f'L\'utilisateur {dto.name} ({dto.email}): Ce mail contenait: {dto.content}',
         subtype='html'
     )
     mailer = FastMail(config)
-    await mailer.send_message(message)
+    await mailer.send_message(message, template_name='mail_template.html')
 
 if __name__ == '__main__':
     # exposer FastAPI sur le port 8000
