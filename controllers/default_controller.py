@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body, Depends, Query
+from fastapi import APIRouter, Body, Depends, Path, Query
 
 from dto.hello_request_dto import HelloRequestDto
 from dto.hello_response_dto import HelloResponseDto
@@ -7,18 +7,20 @@ from services.mailer import Mailer
 
 router = APIRouter(prefix='/default', tags=['Default'])
 
-@router.get('/hello')
+@router.get('/hello/{id}')
 def hello(
     # name: str = Query(default='Khun', description='Permet de définir qui sera saluer'), 
     # nb: int = Query(default=1, description='Permet de définir combien de fois')
-    dto: HelloRequestDto = Query()
+    dto: HelloRequestDto = Query(),
+    id: int = Path()
 ) -> HelloResponseDto:
     """
     Fonction test qui permet de dire bonjour !
     """
+    print('id', id)
     return HelloResponseDto(
         result=f'Hello {dto.name * dto.nb}',
-        square=dto.nb**2
+        square=dto.nb**2,
     )
     # return { 'result': f'Hello {dto.name * dto.nb}', 'square': dto.nb**2 }
 
