@@ -30,7 +30,6 @@ async def mail(
     dto: MailRequestDto = Body(),
     mailer: Mailer = Depends(Mailer)
 ) -> None:
-    
     await mailer.send_message(
         dto.subject,
         dest=['lykhun@gmail.com'],
