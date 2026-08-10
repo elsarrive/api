@@ -68,6 +68,45 @@ Création d'une API RESTful de gestion de tâches avec **FastAPI**, **SQLAlchemy
   * Si le statut est `in_progress` :
     * Supprimer la tâche de la base de données.
     * **Email** : Envoyer un e-mail à `attribution_email` pour notifier de l'annulation/suppression de la tâche.
-* **Erreurs HTTP** :
-  * `404 Not Found` : Si la tâche correspondant à l'ID n'existe pas en base de données.
-  * `400 Bad Request` : Si la tâche est au statut `done`.
+* `404 Not Found` : Si la tâche correspondant à l'ID n'existe pas en base de données.
+* `400 Bad Request` : Si la tâche est au statut `done`.
+
+---
+
+## 👥 Modèle `Employe`
+
+* **`id`** : `int`
+* **`last_name`** : `str`
+* **`first_name`** : `str`
+* **`email`** : `str`
+* **`salary`** : `decimal`
+* **`titre`** : `Enum` (`PM`, `DEV`)
+* **`supervisor_id`** : `int | null` (référence vers un autre employé)
+
+### Règles métier
+
+* Seuls les `DEV` peuvent avoir des tâches.
+* Un `DEV` doit avoir un `supervisor`.
+* Un `PM` ne peut pas être supervisé par un `DEV`.
+* Toute modification de supervision doit être cohérente et ne pas créer de cycle.
+
+### Cas d’usage
+
+1. **Créer un `EMPLOYE`**
+   * Ajouter l’employé avec un `supervisor` valide.
+
+2. **Supprimer un `DEV`**
+   * Toutes les tâches et les employés qui lui étaient attribués sont réaffectés à son `supervisor`.
+   * Si un employé n’a pas de superviseur, la suppression n’est pas autorisée.
+
+3. **Modifier le superviseur**
+   * Changer le `supervisor` avec `idEmploye` et `idSuperviseur`.
+   * Vérifier l’absence de cycle de supervision.
+
+### Notification par e-mail
+
+* Lors des changements importants, envoyer un e-mail à toute la hiérarchie concernée.
+* Par exemple, à la création, suppression ou réaffectation d’un `DEV`.
+
+
+
