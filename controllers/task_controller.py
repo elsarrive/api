@@ -45,13 +45,16 @@ def get(
     session: Session = Depends(get_session)
 ) -> list[TaskResponseDto]:
     stmt = (select(Task)
-        .filter(not dto.email or Task.attribution_email == dto.email)
-        .filter(not dto.status or Task.status == dto.status)
+        .where(not dto.email or Task.attribution_email == dto.email)
+        .where(not dto.status or Task.status == dto.status)
         .offset((dto.page - 1) * dto.limit)
         .limit(dto.limit)
     )
     tasks = session.execute(stmt).scalars().all()
+    # transforme chaque model db en dto
     return map(TaskResponseDto.from_entity, tasks)
+    # return [TaskResponseDto.from_entity(t) for t in tasks]
+
     
 
     
