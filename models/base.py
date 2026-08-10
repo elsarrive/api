@@ -1,4 +1,23 @@
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy import create_engine
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 class Base(DeclarativeBase):
     pass
+
+engine = create_engine(url=os.getenv('DB_URL'))
+session_maker = sessionmaker(bind=engine)
+
+def get_session():
+    session = session_maker()
+    try: 
+        yield session
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+    finally:
+        session.close()
+    
