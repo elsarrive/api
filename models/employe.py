@@ -1,10 +1,8 @@
 from enum import Enum as PyEnum, auto
 from typing import Optional
-
 from sqlalchemy import NUMERIC, Enum as SQLEnum, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
-from base import Base 
+from models import Base 
 
 class Employe(Base):
     __tablename__ = 'employe'
