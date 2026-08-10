@@ -1,5 +1,6 @@
 
-from fastapi import APIRouter, Body, Depends, BackgroundTasks, Query
+from fastapi import APIRouter, Body, Depends, BackgroundTasks, Path, Query, HTTPException
+from starlette.status import *
 from sqlalchemy import select
 
 from dto.task_filter_request_dto import TaskFilterRequestDto
@@ -55,6 +56,51 @@ def get(
     return map(TaskResponseDto.from_entity, tasks)
     # return [TaskResponseDto.from_entity(t) for t in tasks]
 
+@router.patch('/{id}')
+def update_status(
+    id: int = Path(), status: Task.Status = Body(),
+    session: Session = Depends(get_session)
+):
+    try:
+        task = session.get_one(Task, id)
+    except:
+        raise HTTPException(HTTP_404_NOT_FOUND)
     
+    if task.end_date < datetime.now():
+        raise HTTPException(HTTP_422_UNPROCESSABLE_CONTENT, {
+            'message': 'Il n\'est plus possible de modifier cet enregistrement'
+        })
+    
+    task.status = status
+    session.flush([task])
+    return task.id
+
+@router.delete('/{id}')
+def delete(
+    background_tasks: BackgroundTasks,
+    id: int = Path(), 
+    session: Session = Depends(get_session),
+    mailer: Mailer = Depends(Mailer)
+):
+    try:
+        task: Task = session.get_one(Task, id)
+    except:
+        raise HTTPException(HTTP_404_NOT_FOUND)
+
+    if task.status == Task.Status.done:
+        raise HTTPException(HTTP_422_UNPROCESSABLE_CONTENT, {
+            'message': 'Impossible de supprimer une tâche terminée'
+        })
+
+    background_tasks.add_task(
+        mailer.send_message,
+        'Tâche supprimée',
+        [task.attribution_email],
+        task.__dict__,
+        'task_removed.html'
+    )
+    session.delete(task)
+    session.flush()
+    return task.id
 
     
