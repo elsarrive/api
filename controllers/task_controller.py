@@ -28,6 +28,7 @@ async def create(
     task.name = dto.name
     task.attribution_email = dto.attribution_email
     task.end_date = datetime.now() + timedelta(days=dto.duration)
+    task.assign_to_id = dto.assign_to_id
     session.add(task)
     # sauver en db sans commit
     session.flush()
@@ -69,7 +70,7 @@ def update_status(
     if task.end_date < datetime.now():
         raise HTTPException(HTTP_422_UNPROCESSABLE_CONTENT, {
             'message': 'Il n\'est plus possible de modifier cet enregistrement'
-        })
+        }) 
     
     task.status = status
     session.flush([task])
@@ -102,5 +103,3 @@ def delete(
     session.delete(task)
     session.flush()
     return task.id
-
-    

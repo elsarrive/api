@@ -20,4 +20,4 @@ def get_session():
         raise e
     finally:
         session.close()
-    
+        
