@@ -71,31 +71,45 @@ def delete_employee(
         session.flush()
 
 
-# @router.patch
+def superviseur_checking(employee_id: int, new_sup_id: int, session : Session = Depends(get_session), result : list[int]|None=None):
+    if result is None: 
+        result = []
+
+    new_sup = session.get(Employe, new_sup_id)
+    if new_sup_id in result or new_sup_id == employee_id: 
+        return False
+    if new_sup.superviseur is None:
+        return True
+
+    result.append(new_sup_id)
+    new_sup = new_sup.superviseur
+    print(result)
+    return superviseur_checking(employee_id, new_sup.employee_id, session, result)
+        
+
+@router.patch('/e/{employee_id}')
 def superviseur_modification(
         employee_id : int, 
         new_sup_id : int,
         session : Session = Depends(get_session)
         ):
+
     employee = session.get(Employe, employee_id)
     new_sup = session.get(Employe, new_sup_id)
     if employee is None: 
         raise HTTPException(status_code=404, detail='Cet employé n\'existe pas')
-    elif new_sup is None:
+
+    if new_sup is None:
         raise HTTPException(status_code=418, detail='Cet nouveau superviseur n\'existe pas') 
-    else: 
-        #superviseur_checking(employee_id, new_sup_id)
 
-# c'est le NOUVEAU SUPERVISEUR que je dois vérfier
-# def superviseur_checking(employee_id: int, session : Session = Depends(get_session), result:list=[]):
-#     employee = session.get(Employe, employee_id)
-#     result = []
-#     while employee.superviseur:
-#         result.append(employee_id)
-#         if employee_id in result: 
-#             return False
-#         else: 
+    if not superviseur_checking(employee_id, new_sup_id, session):
+        raise HTTPException(status_code=409, detail='Ce changement créerait un cycle dans la hiérarchie')
 
-#             superviseur_checking(employee.superviseur.supervisor_id, Depends(get_session), result)
-#             print(result)
+    employee.superviseur = new_sup
+    session.flush([employee])
+    return employee.employee_id
+
+
+
+
 

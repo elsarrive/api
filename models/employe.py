@@ -10,8 +10,6 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING: # employé import task, task import employé -> permet d'éviter pb d'imports cycliques
     from models.task import Task 
 
-from enums.titre import Titre 
-
 class Employe(Base):
     __tablename__ = 'employe'
     class Titre(StrEnum):

@@ -4,7 +4,7 @@ from enum import StrEnum, auto
 from sqlalchemy.orm import Mapped, mapped_column, relationship, sessionmaker
 from sqlalchemy import Engine, Enum as SqlEnum, ForeignKey, create_engine
 
-from models.base import Base
+from models import Base
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:

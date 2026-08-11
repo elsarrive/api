@@ -219,3 +219,4 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 scripts sql/ajouts_employes_hierarchie_recursive.sql
+scripts sql/seed_employes_tasks.sql
