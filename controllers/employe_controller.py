@@ -71,3 +71,31 @@ def delete_employee(
         session.flush()
 
 
+# @router.patch
+def superviseur_modification(
+        employee_id : int, 
+        new_sup_id : int,
+        session : Session = Depends(get_session)
+        ):
+    employee = session.get(Employe, employee_id)
+    new_sup = session.get(Employe, new_sup_id)
+    if employee is None: 
+        raise HTTPException(status_code=404, detail='Cet employé n\'existe pas')
+    elif new_sup is None:
+        raise HTTPException(status_code=418, detail='Cet nouveau superviseur n\'existe pas') 
+    else: 
+        #superviseur_checking(employee_id, new_sup_id)
+
+# c'est le NOUVEAU SUPERVISEUR que je dois vérfier
+# def superviseur_checking(employee_id: int, session : Session = Depends(get_session), result:list=[]):
+#     employee = session.get(Employe, employee_id)
+#     result = []
+#     while employee.superviseur:
+#         result.append(employee_id)
+#         if employee_id in result: 
+#             return False
+#         else: 
+
+#             superviseur_checking(employee.superviseur.supervisor_id, Depends(get_session), result)
+#             print(result)
+
