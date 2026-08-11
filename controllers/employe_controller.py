@@ -102,7 +102,7 @@ def superviseur_modification(
     if new_sup is None:
         raise HTTPException(status_code=418, detail='Cet nouveau superviseur n\'existe pas') 
 
-    if not superviseur_checking(employee_id, new_sup_id, session):
+    if superviseur_checking(employee_id, new_sup_id, session) is False:
         raise HTTPException(status_code=409, detail='Ce changement créerait un cycle dans la hiérarchie')
 
     employee.superviseur = new_sup
