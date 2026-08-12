@@ -39,7 +39,7 @@ async def create(
     task.name = dto.name
     task.end_date = datetime.now() + timedelta(days=dto.duration)
     task.assign_to_id = dto.assign_to_id
-    #task.attribution_email = dto.attribution_email
+    task.attribution_email = dto.attribution_email
 
     session.add(task)
     # sauver en db sans commit
@@ -76,6 +76,8 @@ async def create(
     )
     return task.id
 
+
+
 @router.get('/', status_code=201)
 def get(
     dto: TaskFilterRequestDto = Query(),
@@ -91,6 +93,7 @@ def get(
     # transforme chaque model db en dto
     return map(TaskResponseDto.from_entity, tasks)
     # return [TaskResponseDto.from_entity(t) for t in tasks]
+
 
 @router.patch('/{id}', status_code=201)
 def update_status(
@@ -110,6 +113,9 @@ def update_status(
     task.status = status
     session.flush([task])
     return task.id
+
+
+
 
 @router.delete('/{id}', status_code=201)
 def delete(
